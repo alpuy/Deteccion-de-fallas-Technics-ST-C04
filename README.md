@@ -20,7 +20,8 @@ Herramientas para diagnosticar fallas en el display fluorescente (VFD) y el tecl
   - teclas: trabada, con fuga, sin contacto; diodos de la matriz abiertos o en corto;
   - configuración: S16, D924, D919/D920;
   - alimentación: falta de −21,4 V, filamento abierto, IC sin 5 V, supercondensadores agotados.
-- Diagnóstico en texto, tabla de niveles por ranura (lo que se vería con el osciloscopio), lectura de la matriz y modo de barrido lento.
+- Diagnóstico en texto, tabla de niveles por ranura (lo que se vería con el osciloscopio) y lectura de la matriz.
+- Modos de barrido normal, lento y paso a paso: un ciclo de 12 fases (dibujo de D1–D5 y lectura del teclado por cada línea a–g) con un diagrama del circuito que ilumina la rejilla, las líneas, los ánodos, las teclas y las entradas K activas en cada fase. El orden de lectura del teclado es un modelo didáctico.
 
 ## Líneas de segmento y teclado
 

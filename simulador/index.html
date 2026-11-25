@@ -13,7 +13,7 @@
    COLOUR placa casi negra, aluminio, VFD #4ff0d2, rojo de falla #ff4b3a
    TYPE Barlow Condensed (rótulos de panel) + Barlow (texto)
    LAYOUT panel completo arriba; debajo fallas a la izquierda y diagnóstico + osciloscopio a la derecha; en móvil se apila */
-:root{color-scheme:light dark;--bg:light-dark(#dfe2e5,#0d0f11);--ink:light-dark(#15181b,#e3e6e9);--soft:light-dark(#5a6168,#9aa2aa);--card:light-dark(#f4f5f6,#16191c);--line:light-dark(#c3c8cd,#2a2f34);--plate:#121416;--plate2:#1c1f22;--alu:#c9ced3;--vfd:#4ff0d2;--bad:#ff4b3a;--warn:#f2b632}
+:root{color-scheme:light dark;--hi:light-dark(#08947f,#4ff0d2);--bg:light-dark(#dfe2e5,#0d0f11);--ink:light-dark(#15181b,#e3e6e9);--soft:light-dark(#5a6168,#9aa2aa);--card:light-dark(#f4f5f6,#16191c);--line:light-dark(#c3c8cd,#2a2f34);--plate:#121416;--plate2:#1c1f22;--alu:#c9ced3;--vfd:#4ff0d2;--bad:#ff4b3a;--warn:#f2b632}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 html,body{margin:0}
@@ -74,6 +74,36 @@ td.lbl{text-align:left;white-space:nowrap}
 .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:16px;margin-top:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}
 .btn{font:600 15px "Barlow Condensed",sans-serif;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:5px;min-height:38px;padding:0 12px;cursor:pointer}
+.circ{margin-top:22px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:600 15px "Barlow Condensed",sans-serif;background:var(--bg);color:var(--ink);border:0;border-right:1px solid var(--line);min-height:40px;padding:0 14px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.btn:disabled{opacity:.4;cursor:default}
+.phase{font-size:15px;margin:10px 0 6px;min-height:46px}
+.phase b{font-weight:600}
+#cir{display:block;width:100%;min-width:760px;height:auto}
+#cir text{fill:var(--ink);font:13px Barlow,sans-serif}
+#cir .s{fill:var(--soft);font-size:12px}
+#cir .lb{font-size:11px;paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+#cir .h{font:600 15px "Barlow Condensed",sans-serif}
+#cir .w{stroke:var(--line);stroke-width:2;fill:none}
+#cir .w.on{stroke:var(--hi);stroke-width:4}
+#cir .w.fl{stroke:var(--warn);stroke-width:3;stroke-dasharray:6 4}
+#cir .w.on.bad{stroke:var(--bad)}
+#cir .zone{fill:color-mix(in srgb,var(--ink) 5%,transparent);stroke:var(--line)}
+#cir .box{fill:var(--card);stroke:var(--soft);stroke-width:1.5}
+#cir .box.on{stroke:var(--hi);stroke-width:3.5}
+#cir .box.bad{stroke:var(--bad);stroke-width:3}
+#cir .cell circle{fill:var(--card);stroke:var(--soft);stroke-width:1.5}
+#cir .cell.closed circle{stroke:var(--hi);stroke-width:3}
+#cir .cell.ghost circle{fill:color-mix(in srgb,var(--warn) 70%,transparent);stroke:var(--warn)}
+#cir .cell.lit circle{fill:var(--hi);stroke:var(--hi)}
+#cir .cell.bad circle{stroke:var(--bad);stroke-width:3}
+#cir .cell.dim text{fill:var(--soft)}
+#cir .x{stroke:var(--bad);stroke-width:3}
+#cir .xt{fill:var(--bad);font-weight:600}
 footer{font-size:13px;color:var(--soft);padding-bottom:30px}
 @media(max-width:900px){.front{grid-template-columns:minmax(0,1fr)}.panel{box-shadow:0 10px 18px -12px #000}main{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.panel{border-radius:0 0 10px 10px;margin:0 calc(-1*max(16px,4vw));padding:8px 10px 10px}.brand span,.legend{display:none}.brand b{font-size:16px}.front{gap:8px;margin-top:4px}.win{padding:6px 8px}.keys{gap:5px}.kb{min-height:38px;font-size:13px}.tg{min-height:34px;padding:0 10px;font-size:13px}.sw{gap:6px;margin-top:0}th,td{padding:4px 4px}}
@@ -95,6 +125,15 @@ footer{font-size:13px;color:var(--soft);padding-bottom:30px}
  </div>
 </div>
 
+<section class="card circ" aria-labelledby="hc">
+ <div class="ctl"><h2 id="hc" style="margin:0">Circuito: barrido y matriz</h2>
+  <div class="row" style="margin:0"><div class="seg" role="group" aria-label="Modo de barrido"><button data-m="normal" aria-pressed="true">Normal</button><button data-m="slow" aria-pressed="false">Lento</button><button data-m="manual" aria-pressed="false">Paso a paso</button></div>
+  <button class="btn" id="prev" aria-label="Fase anterior">◀ Anterior</button><button class="btn" id="next" aria-label="Fase siguiente">Siguiente ▶</button></div></div>
+ <p class="phase" id="phase"></p>
+ <div class="scroll"><svg id="cir" viewBox="0 0 1000 480" role="img" aria-label="Diagrama de IC901, el tubo y la matriz de teclas"></svg></div>
+ <p class="note">El tubo y el teclado son dos matrices sobre las mismas siete líneas a–g. En el tubo, cada cruce de una línea con una rejilla es un ánodo; en el teclado, cada cruce con una entrada K es una tecla o un diodo de configuración. Verde = activo, amarillo = flotando, rojo = falla. Modelo didáctico del orden: primero los 5 dígitos y después una lectura del teclado por cada línea; el datasheet no detalla en qué momento del ciclo se leen las teclas. En "Paso a paso" el IC queda congelado y las teclas del panel quedan enclavadas al tocarlas.</p>
+</section>
+
 <main>
  <section class="card" aria-labelledby="hf">
   <h2 id="hf">Fallas</h2>
@@ -105,7 +144,6 @@ footer{font-size:13px;color:var(--soft);padding-bottom:30px}
  <section class="card" aria-labelledby="hd">
   <h2 id="hd">Qué está pasando</h2>
   <ul class="diag" id="diag"></ul>
-  <div class="row" style="margin-top:14px"><button class="btn" id="slow">Barrido lento: no</button><span class="note" style="margin:0">Muestra un dígito a la vez, como lo maneja el IC (≈0,6 ms cada uno en el equipo real).</span></div>
   <div class="two">
    <div><h3>Líneas por ranura de barrido</h3><div class="scroll" id="scope"></div></div>
    <div><h3>Lectura de la matriz</h3><div class="scroll" id="mtx"></div></div>
@@ -146,7 +184,7 @@ const F0 = () => ({line:Object.fromEntries(L.map(l=>[l,'ok'])),pd:Object.fromEnt
  key:Object.fromEntries(KEYS.map(k=>[k.id,'ok'])),dio:Object.fromEntries(['D906','D907','D908','D909','D910','D911','D912'].map(d=>[d,'ok'])),
  d924:true,d919:true,d920:true,d925:false,rank:'O',s16:'US'});
 let F = F0();
-const S = {power:true,band:'FM',auto:false,freq:{FM:98.7,AM:880},pre:null,meArm:0,blink:0,held:{},prevKeys:'',hold:{id:null,t:0},scan:0,seek:0,lastStep:0,leak:{},slow:false,slowSlot:1,lastSlow:0,msg:''};
+const S = {power:true,band:'FM',auto:false,freq:{FM:98.7,AM:880},pre:null,meArm:0,blink:0,held:{},prevKeys:'',hold:{id:null,t:0},scan:0,seek:0,lastStep:0,leak:{},mode:'normal',phase:1,lastSlow:0,msg:''};
 const defPresets = () => ({FM:[88.1,91.5,94.5,98.7,101.1,105.9],AM:[550,710,880,1010,1240,1500]});
 S.pre = defPresets();
 
@@ -243,19 +281,24 @@ function onKey(name,cfg,now){
 
 let lastCfg=null;
 // ---------------------------------------------------------------- render
+const PH=p=>p<=5?{kind:'disp',slot:p}:{kind:'key',line:L[p-6]};
 function bright(cfg,now){
- const c=ctrlLines(cfg); const slots=S.slow?[S.slowSlot]:[1,2,3,4,5];
+ const c=ctrlLines(cfg);
+ if(S.mode!=='normal'){const ph=PH(S.phase);
+  if(ph.kind==='key'){const d=new Set([ph.line]);return {c,el:EL.map(e=>F.fil?0:gridLevel(e.slot,0).v*lineLevel(e.line,d).v)};}
+  const s=ph.slot;return {c,el:EL.map(e=>F.fil?0:gridLevel(e.slot,s).v*lineLevel(e.line,c[s]).v)};}
+ const slots=[1,2,3,4,5];
  return {c,el:EL.map(e=>{if(F.fil)return 0;let b=0;for(const s of slots)b+=gridLevel(e.slot,s).v*lineLevel(e.line,c[s]).v;return b;})};}
 function render(now){
- if(S.slow&&now-S.lastSlow>700){S.slowSlot=S.slowSlot%5+1;S.lastSlow=now;}
+ if(S.mode==='slow'&&now-S.lastSlow>650){S.phase=S.phase%12+1;S.lastSlow=now;}
  const {c,el}=bright(lastCfg.cfg,now);
  el.forEach((b,i)=>{const n=EL[i].node;const v=Math.min(b,1);n.setAttribute('fill',b>1.6?'#b9fff1':'#4ff0d2');n.setAttribute('fill-opacity',(0.07+0.93*v).toFixed(2));});
- document.getElementById('slotlbl').textContent=S.slow?`D${S.slowSlot} activo (${GRID[S.slowSlot]})`:'';
- const sig=JSON.stringify([F,S.band,S.auto,S.slow?S.slowSlot:0,S.power,lastCfg.R,S.freq,S.meArm>0,S.msg]);
- if(sig!==render.sig){render.sig=sig;renderTables(c);renderDiag();renderKeys();}}
+ {const ph=PH(S.phase);document.getElementById('slotlbl').textContent=S.mode==='normal'?'':ph.kind==='disp'?`D${ph.slot} · ${GRID[ph.slot]}`:`lectura de teclado · línea ${ph.line}`;}
+ const sig=JSON.stringify([F,S.band,S.auto,S.mode,S.phase,S.mode==='manual'?S.held:0,S.power,lastCfg.R,S.freq,S.meArm>0,S.msg]);
+ if(sig!==render.sig){render.sig=sig;renderTables(c);renderDiag();renderKeys();updCirc(c);}}
 
 function renderTables(c){
- const cur=S.slow?S.slowSlot:0;
+ const ph=PH(S.phase), cur=S.mode!=='normal'&&ph.kind==='disp'?ph.slot:0, curL=S.mode!=='normal'&&ph.kind==='key'?ph.line:'';
  let h='<table><thead><tr><th></th>'+[1,2,3,4,5].map(s=>`<th class="${s===cur?'cur':''}">D${s}</th>`).join('')+'</tr></thead><tbody>';
  for(const l of L){h+=`<tr><td class="lbl">${l} <span style="color:var(--soft)">P${PCONN[l]}</span></td>`;
   for(let s=1;s<=5;s++){const x=lineLevel(l,c[s]);const cl=x.forced?'x':x.float?'f':x.v?'h':'';h+=`<td class="${cl} ${s===cur?'cur':''}">${x.v===1?1:x.float?'~':0}</td>`;}h+='</tr>';}
@@ -263,7 +306,7 @@ function renderTables(c){
   for(let s=1;s<=5;s++){const x=gridLevel(g,s);const cl=x.forced?'x':x.float?'f':x.v?'h':'';h+=`<td class="${cl} ${s===cur?'cur':''}">${x.v===1?'on':x.float?'~':''}</td>`;}h+='</tr>';}
  document.getElementById('scope').innerHTML=h+'</tbody></table>';
  const R=lastCfg.R;let m='<table><thead><tr><th></th><th>K0</th><th>K1</th><th>K2</th><th>K3</th></tr></thead><tbody>';
- for(const l of L){m+=`<tr><td class="lbl">${l}</td>`+R[l].map((on,k)=>{const n=MTXNAME[l][k];const odd=on&&!n;return `<td class="${odd?'x':on?'h':''}" title="${n}">${on?(n||'?'):(n?'<span style="color:var(--soft)">'+n+'</span>':'')}</td>`}).join('')+'</tr>';}
+ for(const l of L){m+=`<tr><td class="lbl ${l===curL?'cur':''}">${l}</td>`+R[l].map((on,k)=>{const n=MTXNAME[l][k];const odd=on&&!n;return `<td class="${odd?'x':on?'h':''} ${l===curL?'cur':''}" title="${n}">${on?(n||'?'):(n?'<span style="color:var(--soft)">'+n+'</span>':'')}</td>`}).join('')+'</tr>';}
  document.getElementById('mtx').innerHTML=m+'</tbody></table>';}
 
 function keyWorks(k){ // ¿se detecta sola y correctamente?
@@ -320,11 +363,11 @@ const kdiv=document.getElementById('keys');
 kdiv.innerHTML=KORDER.map(id=>{const k=KEYS.find(x=>x.id===id);return `<button class="kb ${['S7','S8','S9'].includes(id)?'wide':''}" id="k-${id}" data-id="${id}" aria-label="${k.t} (${id})">${k.t}</button>`}).join('')+
  `<div class="sw"><button class="tg pw" id="t-pw">Power<span class="v" id="v-pw">on</span></button><button class="tg" id="t-band">Banda S2<span class="v" id="v-band">FM</span></button><button class="tg" id="t-auto">Auto scan S3<span class="v" id="v-auto">off</span></button></div><div class="legend">Mantén apretado UP/DOWN más de 0,5 s para recorrer la banda. MEMO y luego CH1–CH6 dentro de 5 s memoriza.</div>`;
 function renderKeys(){
- for(const k of KEYS){const b=document.getElementById('k-'+k.id);const r=F.key[k.id]==='ok'?keyWorks(k):'x';b.classList.toggle('dead',r!=='ok');b.classList.toggle('on',F.key[k.id]==='stuck');}
+ for(const k of KEYS){const b=document.getElementById('k-'+k.id);const r=F.key[k.id]==='ok'?keyWorks(k):'x';b.classList.toggle('dead',r!=='ok');b.classList.toggle('on',F.key[k.id]==='stuck'||(S.mode==='manual'&&!!S.held[k.id]));}
  document.getElementById('v-pw').textContent=S.power?'on':'off';
  document.getElementById('v-band').textContent=S.bandSw||'FM';document.getElementById('v-auto').textContent=S.auto?'on':'off';}
-kdiv.addEventListener('pointerdown',e=>{const b=e.target.closest('.kb');if(!b)return;e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}S.held[b.dataset.id]=true;S.msg='';});
-const rel=e=>{const b=e.target.closest('.kb');if(b)S.held[b.dataset.id]=false;};
+kdiv.addEventListener('pointerdown',e=>{const b=e.target.closest('.kb');if(!b)return;e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}if(S.mode==='manual'){S.held[b.dataset.id]=!S.held[b.dataset.id];render.sig='';return;}S.held[b.dataset.id]=true;S.msg='';});
+const rel=e=>{if(S.mode==='manual')return;const b=e.target.closest('.kb');if(b)S.held[b.dataset.id]=false;};
 kdiv.addEventListener('pointerup',rel);kdiv.addEventListener('pointercancel',rel);
 kdiv.addEventListener('keydown',e=>{const b=e.target.closest('.kb');if(b&&(e.key===' '||e.key==='Enter')){e.preventDefault();S.held[b.dataset.id]=true;setTimeout(()=>S.held[b.dataset.id]=false,150);}});
 // banda y auto: son interruptores físicos; el IC los lee por la línea e
@@ -390,7 +433,7 @@ const SCEN=[
 function renderScen(){document.getElementById('scen').innerHTML=SCEN.map(([t],i)=>`<button class="chip ${S.scen===i?'on':''}" data-i="${i}">${t}</button>`).join('');}
 document.getElementById('scen').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const i=+b.dataset.i;F=F0();SCEN[i][1](F);S.leak={};S.seek=0;if(!S.pre)S.pre=defPresets();S.power=true;buildFaults();S.scen=i;renderScen();render.sig='';});
 
-document.getElementById('slow').onclick=e=>{S.slow=!S.slow;e.target.textContent='Barrido lento: '+(S.slow?'sí':'no');render.sig='';};
+
 
 buildFaults();
 S.scen=0;renderScen();
@@ -398,7 +441,8 @@ function tick2(now,R){
  S.blink=Math.floor(now/350)%2;
  for(const k of KEYS) if(F.key[k.id]==='leak'&&!(S.leak[k.id]>now)&&Math.random()<0.012)S.leak[k.id]=now+160;
  const {keys,cfg}=decode(R);
- if(S.power&&!F.vdd){
+ if(S.mode==='manual'){S.prevKeys=keys.join(',');}
+ else if(S.power&&!F.vdd){
   const want=cfg.am?'AM':'FM'; if(want!==S.band){S.band=want;S.seek=0;}
   const sig=keys.join(',');
   if(sig!==S.prevKeys){if(keys.length===1)onKey(keys[0],cfg,now);else S.hold={id:null};S.prevKeys=sig;}
@@ -408,6 +452,76 @@ function tick2(now,R){
   S.freq[S.band]=snap(S.freq[S.band],bandSpec(cfg));}
  lastCfg={cfg,R,keys};
  render(now);}
+// ================================================================ diagrama del circuito
+const cir=document.getElementById('cir');
+const LY=l=>130+L.indexOf(l)*34, GX=g=>290+(g-1)*80, KX=k=>720+k*70;
+const CELLV={}; // nombres de ánodos por (slot,línea)
+const nm1={a:'últ. a',b:'MEMORY',c:'FM·DP·MHz',e:'AM·kHz',f:'últ. f',g:'últ. g'};
+for(const l of L){CELLV[1+l]=nm1[l]||'';for(const g of [2,3,4])CELLV[g+l]=l;CELLV[5+l]=(l==='b'||l==='c')?'1':'';}
+const KEYCELL={a:['DOWN','UP','MEMO',''],b:['CH4','CH3','CH2','CH1'],c:['','','CH6','CH5'],d:['','','',''],e:['108/104','','AUTO','AM/FM'],f:['','','','B2'],g:['B0','B1','IF1','IF0']};
+const KEYREF={a:['S8 + D912/D906','S9 + D912/D907','S7 + D912/D908',''],b:['S13 + D911/D906','S12 + D911/D907','S11 + D911/D908','S10 + D911/D909'],c:['','','S15 + D910/D908','S14 + D910/D909'],d:['','','',''],e:['D924','','S3 + D929 (placa F)','S2 + D928 (placa F)'],f:['','','','D925'],g:['S16 + D916','S16 + D916','D919','D920']};
+function cellClosed(l,k,now){
+ const kk=KEYS.find(x=>x.l===l&&x.k===k); if(kk)return keyClosed(kk,now)&&F.dio[kk.rd]!=='open'&&F.dio[kk.cd]!=='open';
+ if(l==='e'&&k===0)return F.d924; if(l==='e'&&k===2)return S.auto; if(l==='e'&&k===3)return S.bandSw==='AM';
+ if(l==='f'&&k===3)return F.d925; if(l==='g'&&k===0)return F.s16==='EU'||F.s16==='both'; if(l==='g'&&k===1)return F.s16==='US'||F.s16==='both';
+ if(l==='g'&&k===2)return F.d919; if(l==='g'&&k===3)return F.d920; return false;}
+function cellBad(l,k){const kk=KEYS.find(x=>x.l===l&&x.k===k);return kk&&(F.key[kk.id]!=='ok'||F.dio[kk.rd]!=='ok'||F.dio[kk.cd]!=='ok');}
+(function buildCirc(){
+ let h=`<rect class="zone" x="250" y="96" width="400" height="270" rx="6"/><text class="h" x="258" y="390">Tubo VFD SAD7BT05A (ánodos)</text>
+ <rect class="zone" x="680" y="96" width="290" height="270" rx="6"/><text class="h" x="688" y="390">Matriz de teclas y diodos</text>
+ <rect class="box" id="cic" x="20" y="60" width="120" height="410" rx="4"/><text class="h" x="32" y="90">IC901</text><text class="s" x="32" y="106">µPD1703C-011</text>`;
+ [1,2,3,4,5].forEach((g,i)=>{const px=40+i*20, ly=18+i*8;
+  h+=`<path class="w" id="wd${g}" d="M${px} 60 V${ly} H${GX(g)} V70"/><text class="s" x="${px-6}" y="76">D${g}</text>`;
+  h+=`<rect class="box" id="q${g}" x="${GX(g)-30}" y="70" width="60" height="24" rx="3"/><text x="${GX(g)-22}" y="87">${QDRV[g]}</text>`;
+  h+=`<path class="w" id="wg${g}" d="M${GX(g)} 94 V356"/><text class="s" x="${GX(g)-24}" y="${g%2?375:375}">${GRID[g]}</text>`;});
+ L.forEach(l=>{const y=LY(l);
+  h+=`<path class="w" id="wl${l}" d="M140 ${y} H960"/><text x="112" y="${y+4}">${l}</text><text class="s" x="146" y="${y-6}">pin ${PIN[l]}</text><text class="s" x="196" y="${y-6}">P${PCONN[l]}</text>
+  <rect class="box" x="960" y="${y-5}" width="16" height="10"/><path class="w" d="M976 ${y} H986"/><g id="fx${l}"></g>`;});
+ h+=`<path class="w" d="M986 ${LY('a')} V${LY('g')}"/><text class="s" x="986" y="${LY('g')+44}" text-anchor="end">Z902 → −21,4 V</text>`;
+ [0,1,2,3].forEach(k=>{const yb=400+k*16;
+  h+=`<path class="w" id="wk${k}" d="M${KX(k)} 100 V${yb} H140"/><text x="${KX(k)-10}" y="92">K${k}</text><text class="s" x="146" y="${yb-3}">K${k} pin ${25-k}</text>`;});
+ L.forEach(l=>{[1,2,3,4,5].forEach(g=>{const n=CELLV[g+l];if(!n)return;h+=`<g class="cell" id="cv${g}${l}"><title>Línea ${l} × ${GRID[g]}</title><circle cx="${GX(g)}" cy="${LY(l)}" r="8"/><text class="lb" x="${GX(g)}" y="${LY(l)+21}" text-anchor="middle">${n}</text></g>`;});
+  [0,1,2,3].forEach(k=>{const n=KEYCELL[l][k];if(!n)return;h+=`<g class="cell" id="ck${l}${k}"><title>${n}: ${KEYREF[l][k]}</title><circle cx="${KX(k)}" cy="${LY(l)}" r="8"/><text class="lb" x="${KX(k)}" y="${LY(l)+21}" text-anchor="middle">${n}</text></g>`;});});
+ cir.innerHTML=h;})();
+const cls=(id,c)=>{const n=document.getElementById(id);if(n)n.setAttribute('class',c);};
+function updCirc(c){
+ const now=performance.now(), ph=PH(S.phase), norm=S.mode==='normal';
+ const drv=ph.kind==='key'?new Set([ph.line]):(norm?null:c[ph.slot]), slot=ph.kind==='disp'?ph.slot:0;
+ L.forEach(l=>{
+  let k='w';if(!norm){const x=lineLevel(l,drv);k+=x.v===1?' on':x.float?' fl':'';if(x.forced&&x.v===1)k+=' bad';}
+  cls('wl'+l,k);
+  const st=F.line[l], fx=document.getElementById('fx'+l), y=LY(l);
+  fx.innerHTML=st==='open'?`<path class="x" d="M218 ${y-7} l14 14 M232 ${y-7} l-14 14"/>`:st==='gnd'?`<text class="xt" x="214" y="${y+16}" font-size="12">a masa</text>`:st==='high'?`<text class="xt" x="214" y="${y+16}" font-size="12">pegada +</text>`:F.pd[l]?`<text class="xt" x="900" y="${y-6}" font-size="12">Z902 abierta</text>`:'';});
+ [1,2,3,4,5].forEach(g=>{
+  const x=norm?{v:0}:gridLevel(g,slot);
+  cls('wg'+g,'w'+(x.v===1?' on':x.float?' fl':'')+(x.forced&&x.v===1?' bad':''));
+  cls('wd'+g,'w'+(!norm&&ph.kind==='disp'&&ph.slot===g&&S.power&&!F.vdd?' on':''));
+  cls('q'+g,'box'+(F.drv[g]==='open'||F.drv[g]==='short'?' bad':x.v===1?' on':''));});
+ const {el}=bright(lastCfg.cfg,now);
+ L.forEach(l=>[1,2,3,4,5].forEach(g=>{if(!CELLV[g+l])return;
+  let b=0;EL.forEach((e,i)=>{if(e.slot===g&&e.line===l)b=Math.max(b,el[i]);});
+  cls(`cv${g}${l}`,'cell'+(b>=.6?' lit':b>.05?' ghost':''));}));
+ const R=lastCfg.R;
+ L.forEach(l=>[0,1,2,3].forEach(k=>{if(!KEYCELL[l][k])return;
+  const closed=cellClosed(l,k,now); let k2='cell';
+  if(closed)k2+=' closed';
+  if(!norm&&ph.kind==='key'&&closed&&lineLevel(l,drv).v===1)k2+=' lit';
+  if(cellBad(l,k))k2+=' bad';
+  if(!closed)k2+=' dim';
+  cls(`ck${l}${k}`,k2);}));
+ [0,1,2,3].forEach(k=>cls('wk'+k,'w'+(!norm&&ph.kind==='key'&&R[ph.line][k]?' on':'')));
+ const P=document.getElementById('phase');
+ if(norm)P.innerHTML='<b>Normal:</b> las 12 fases se repiten cientos de veces por segundo. El diagrama muestra el resultado: ánodos encendidos en el tubo y teclas/diodos cerrados en la matriz (contorno verde). Elige "Lento" o "Paso a paso" para ver cada fase.';
+ else if(ph.kind==='disp'){const on=L.filter(l=>lineLevel(l,c[ph.slot]).v===1);
+  P.innerHTML=`<b>Fase ${S.phase} de 12 · dibujo del dígito D${ph.slot}.</b> IC901 pone D${ph.slot} (pin ${8+ph.slot}) en bajo, ${QDRV[ph.slot]} enciende la rejilla ${GRID[ph.slot]} y las líneas en alto (${on.join(', ')||'ninguna'}) encienden sus ánodos bajo esa rejilla.`;}
+ else{const hi=L.filter(l=>lineLevel(l,drv).v===1), ks=R[ph.line].map((v,k)=>v?'K'+k:'').filter(Boolean);
+  P.innerHTML=`<b>Fase ${S.phase} de 12 · lectura del teclado por la línea ${ph.line}.</b> Rejillas apagadas; ${hi.length?'solo '+hi.join(', ')+(hi.length>1?' en alto':' en alto'):'ninguna línea queda en alto'}. Por las teclas o diodos cerrados de esa columna la tensión llega a ${ks.length?ks.join(', '):'ninguna entrada K'}${ks.length?` y el IC lo interpreta como ${R[ph.line].map((v,k)=>v?MTXNAME[ph.line][k]||'?':'').filter(Boolean).join(', ')}`:''}.`;}
+ document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.m===S.mode)));
+ document.getElementById('prev').disabled=document.getElementById('next').disabled=S.mode!=='manual';}
+document.querySelector('.seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const was=S.mode;S.mode=b.dataset.m;if(was==='manual'&&S.mode!=='manual')S.held={};if(S.mode!=='normal'&&was==='normal')S.phase=1;render.sig='';});
+const go=d=>{if(S.mode!=='manual')return;S.phase=(S.phase-1+d+12)%12+1;render.sig='';};
+document.getElementById('prev').onclick=()=>go(-1);document.getElementById('next').onclick=()=>go(1);
+document.addEventListener('keydown',e=>{if(S.mode!=='manual'||e.target.closest('select,input'))return;if(e.key==='ArrowRight'){go(1);e.preventDefault();}if(e.key==='ArrowLeft'){go(-1);e.preventDefault();}});
 setInterval(()=>{const now=performance.now();tick2(now,readMatrix(now));},40);
 }
 </script>
