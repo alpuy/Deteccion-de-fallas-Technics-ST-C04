@@ -175,8 +175,8 @@ NEG = "-21V4"
 
 # ---------------- IC901 + reloj + alimentación lógica
 place("SVID1703C011", "IC901", "SVID1703C011", 80, 120, {
-    "1": "@EO1_FILTRO_LAZO", "2": "@EO2_FILTRO_LAZO", "3": "@CE", "4": "@PSC_IC902-6",
-    "5": "XTAL_X1", "6": "XTAL_X2", "7": "@SD_ESTEREO_IC301", "8": "@MUTE",
+    "1": "@EO1_SINTONIA_FM", "2": "@EO2_SINTONIA_AM", "3": "@CE", "4": "@PSC_IC902-6",
+    "5": "XTAL_X1", "6": "XTAL_X2", "7": "@SD_DETECTOR_EMISORA", "8": "@MUTE",
     "9": "DIG_D1", "10": "DIG_D2", "11": "DIG_D3", "12": "DIG_D4", "13": "DIG_D5",
     "14": "VDD_5V0",
     "28": "@AM_OSC_IN", "27": "GND", "26": "@FM_PRESCALER_IN_C915",
@@ -272,15 +272,16 @@ text("TUBO FLUORESCENTE + PULL-DOWN DE SEGMENTOS", 360, 52, 2, True)
 text("MATRIZ DE TECLADO (estrobos = líneas de segmento a..g; retornos = K0..K3)", 180, 218, 2, True)
 text("IC901 + RELOJ 4,5 MHz + ALIMENTACIÓN/MEMORIA", 20, 52, 2, True)
 notes = [
-    "NOTAS (verificado con el datasheet NEC uPD1703C-011)",
-    "1) Las salidas de segmento a..g de IC901 (pines 21..15, P-ch drenador abierto, activas en alto) manejan el VFD y a la vez son los",
-    "   estrobos de la matriz de teclas (entradas K0..K3). Un problema en una línea de segmento afecta al display Y a las teclas de esa línea.",
-    "2) Matriz (datasheet Fig. 2): a = DOWN/UP/MEMO (D912) | b = CH1..CH4 (D911) | c = CH5/CH6 (D910) | d = sin teclas |",
-    "   e = 108/104 (D924) + DIM/AUTO-MAN/AM-FM (S2/S3 en placa F, no dibujados) | f = B2 paso AM (D925) | g = B0/B1 región (S16) + IF0/IF1 (D920/D919).",
-    "3) En el dibujo original la línea del segmento 'a' aparece unida al común de Z902: es un error de dibujo; va a P33 / Z902-8.",
-    "4) D919/D920 = diodos de 'rango' del FI (IF0/IF1); pueden no estar montados según el filtro cerámico. Orden de pines de Z901 aproximado.",
-    "5) +B_5V6 viene de la fuente (ánodos de D901 y D921). -21V4 de D702/D922. Filamento FIL_A/FIL_B: 3,2 Vca. Rejillas: D1 = G7+G1,2 (indicadores",
-    "   y último dígito), D2 = G3, D3 = G4, D4 = G5, D5 = G6 (el '1'). S16: A = EE.UU. (B1, K1); B = Europa (B0, K0).",
+    "NOTAS (verificado contra el datasheet NEC uPD1703C-011 y el manual de servicio)",
+    "1) Salidas de segmento a..g (IC901 pines 21..15): P-ch drenador abierto, activas en alto, pull-down 100k a -21,4 V (Z902). Son también los",
+    "   estrobos de la matriz (entradas K0..K3, pines 25..22). Dígitos D1..D5 (pines 9..13) activos en bajo -> PNP Q905..Q909.",
+    "2) Matriz (datasheet Fig. 2): a = DOWN K0 / UP K1 / MEMO K2 | b = CH4 K0 / CH3 K1 / CH2 K2 / CH1 K3 | c = CH6 K2 / CH5 K3 | d = libre |",
+    "   e = 108/104 K0 (D924), AUTO K2 y AM/FM K3 (S3/S2 en placa F vía D929/D928) | f = B2 K3 (D925) | g = B0 K0 / B1 K1 (S16), IF1 K2 (D919), IF0 K3 (D920).",
+    "3) Rango del filtro cerámico CF101/CF102 (manual pág. 6): Rojo = sin D919/D920 (FI 10,700) | Naranja = D919+D920 (10,675) | Azul = solo D920 (10,725).",
+    "4) D925 (B2) figura montado en el dibujo: según la Tabla 1 del datasheet eso da AM 522-1611 kHz paso 9 kHz en modo EE.UU., en contra del rótulo",
+    "   'AM 10 kHz' de S16. Verificar en la placa si D925 está montado. En el dibujo original la línea 'a' aparece unida al común de Z902: error de dibujo.",
+    "5) D1 = G7 + G1,2 (FM/DP/MHz en c, AM/kHz en e, MEMORY en b, último dígito: a = arriba/izq.-sup./der.-inf./abajo, f = der.-sup./izq.-inf., g = medio).",
+    "   D2..D4 = G3..G5 (dígitos completos), D5 = G6 (el '1'). +B_5V6: ánodos D901/D921. -21V4: D702/D922. Filamento 3,2 Vca. S16: A = EE.UU. (B1), B = Europa (B0).",
 ]
 for i, n in enumerate(notes):
     text(n, 15, 330 + i * 5, 1.5, i == 0)

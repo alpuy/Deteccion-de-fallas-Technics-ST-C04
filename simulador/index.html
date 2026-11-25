@@ -144,7 +144,7 @@ const STATIONS = {FM:[76.5,80.0,82.5,88.1,89.3,91.5,94.5,96.3,98.7,100.1,101.1,1
 const F0 = () => ({line:Object.fromEntries(L.map(l=>[l,'ok'])),pd:Object.fromEntries(L.map(l=>[l,false])),short:[],
  drv:{1:'ok',2:'ok',3:'ok',4:'ok',5:'ok'},neg:false,fil:false,vdd:false,backup:false,
  key:Object.fromEntries(KEYS.map(k=>[k.id,'ok'])),dio:Object.fromEntries(['D906','D907','D908','D909','D910','D911','D912'].map(d=>[d,'ok'])),
- d924:true,d919:true,d920:false,d925:false,s16:'US'});
+ d924:true,d919:true,d920:true,d925:false,rank:'O',s16:'US'});
 let F = F0();
 const S = {power:true,band:'FM',auto:false,freq:{FM:98.7,AM:880},pre:null,meArm:0,blink:0,held:{},prevKeys:'',hold:{id:null,t:0},scan:0,seek:0,lastStep:0,leak:{},slow:false,slowSlot:1,lastSlow:0,msg:''};
 const defPresets = () => ({FM:[88.1,91.5,94.5,98.7,101.1,105.9],AM:[550,710,880,1010,1240,1500]});
@@ -179,6 +179,7 @@ function ctrlLines(cfg){ // devuelve {1:Set,..5:Set}
  if(!S.power||F.vdd) return out;
  const spec=bandSpec(cfg); const v=snap(S.freq[S.band],spec);
  const put=(slot,d)=>{for(const s of PAT[d])out[slot].add(s);};
+ out[5].add(S.band==='FM'?'d':'a');
  if(S.band==='FM'){const n=Math.round(v*100);if(n>=10000)put(5,1);put(4,Math.floor(n/1000)%10);put(3,Math.floor(n/100)%10);put(2,Math.floor(n/10)%10);
   const last=n%10; out[1].add('a'); out[1].add(last>=5?'g':'f'); out[1].add('c');}
  else{const n=Math.round(v);if(n>=1000)put(5,1);put(4,Math.floor(n/100)%10);put(3,Math.floor(n/10)%10);put(2,n%10);out[1].add('e');}
@@ -234,7 +235,7 @@ function decode(R){
 function step(dir,cfg){const spec=bandSpec(cfg);let v=snap(S.freq[S.band],spec)+dir*spec[2];if(v>spec[1]+1e-6)v=spec[0];if(v<spec[0]-1e-6)v=spec[1];S.freq[S.band]=snap(v,spec);}
 function isStation(v){return STATIONS[S.band].some(s=>Math.abs(s-v)<(S.band==='FM'?0.03:2));}
 function onKey(name,cfg,now){
- if(name==='UP'||name==='DOWN'){const d=name==='UP'?1:-1;if(S.seek){S.seek=0;return;}step(d,cfg);if(cfg.auto){S.seek=d;}else{S.hold={id:name,t:now,d};}return;}
+ if(name==='UP'||name==='DOWN'){S.meArm=0;const d=name==='UP'?1:-1;if(S.seek){S.seek=0;return;}step(d,cfg);if(cfg.auto){S.seek=d;}else{S.hold={id:name,t:now,d};}return;}
  if(name==='ME'){S.meArm=now+5000;return;}
  const m=+name.slice(1)-1;
  if(S.meArm>now){S.pre[S.band][m]=S.freq[S.band];S.meArm=0;S.msg=`Memorizado en CH${m+1}`;return;}
@@ -304,8 +305,11 @@ function renderDiag(){
  const exp=F.s16==='EU'?'EU':'US';
  if(reg!==exp||F.s16==='none'||F.s16==='both')add('b',`La región leída es <b>${REG[reg].n}</b> (B0=${+cfg.B0}, B1=${+cfg.B1})${F.s16==='both'?': combinación no válida, se simula como Japón':''}. Revisar S16, D916 y la línea g.`);
  if(S.band==='FM'&&!cfg.f108&&reg==='EU')add('w','No se lee el puente 108/104 (D924, línea e): en Europa la banda FM termina en 104 MHz.');
- const ifr=(+cfg.IF0)+'/'+(+cfg.IF1), ifexp=(+F.d920)+'/'+(+F.d919);
- if(ifr!==ifexp)add('w',`Se lee mal el FI (IF0/IF1 = ${ifr}, esperado ${ifexp}): el display no cambia, pero la sintonía queda corrida 25–75 kHz y las emisoras suenan mal.`);
+ const IFT={'00':'10,700','01':'10,650','11':'10,675','10':'10,725'}; // clave IF0 IF1 (EE.UU./Europa)
+ const RKE={R:'00',O:'11',B:'10'}[F.rank], RKN={R:'rojo',O:'naranja',B:'azul'}[F.rank];
+ const ifr=`${+cfg.IF0}${+cfg.IF1}`;
+ if(ifr!==RKE)add('w',`FI programado ${IFT[ifr]} MHz, pero el filtro ${RKN} pide ${IFT[RKE]} MHz (IF0/IF1 = ${ifr[0]}/${ifr[1]}). El display no cambia; la sintonía queda corrida y las emisoras suenan mal o con poca separación. Revisar D919/D920 y la línea g.`);
+ if(cfg.B2&&reg==='US')add('w','B2 activo (D925, línea f): en modo EE.UU. la AM queda en 522–1611 kHz con paso de 9 kHz, aunque S16 diga 10 kHz.');
  if(F.backup)add('w','Supercondensadores C905–C907 agotados: al apagar se pierden las presintonías y la última emisora. Prueba con el botón de encendido.');
  if(!out.length)add('g','Funcionamiento normal. Prueba una falla o un escenario.');
  add('g',`Lectura del IC: ${S.power?S.freq[S.band]+(S.band==='FM'?' MHz':' kHz')+', ':''}región ${REG[reg].n}, banda ${S.band}, paso ${bandSpec(cfg)[2]}${S.band==='FM'?' MHz':' kHz'}, ${cfg.auto?'búsqueda automática':'manual'}.${S.msg?' '+S.msg+'.':''}`);
@@ -336,7 +340,7 @@ function buildFaults(){
  const nLine=L.filter(l=>F.line[l]!=='ok'||F.pd[l]).length+F.short.length;
  const nDrv=Object.values(F.drv).filter(v=>v!=='ok').length;
  const nKey=Object.values(F.key).filter(v=>v!=='ok').length+Object.values(F.dio).filter(v=>v!=='ok').length;
- const nCfg=(F.d924?0:1)+(F.s16==='US'?0:F.s16==='EU'?0:1);
+ const RK={R:[0,0],O:[1,1],B:[0,1]}[F.rank];const nCfg=(F.d924?0:1)+(F.s16==='US'||F.s16==='EU'?0:1)+((+F.d919!==RK[0]||+F.d920!==RK[1])?1:0)+(F.d925?1:0);
  const nPw=[F.neg,F.fil,F.vdd,F.backup].filter(Boolean).length;
  const cnt=n=>n?`<span class="n">${n}</span>`:'';
  fdiv.innerHTML=`
@@ -348,8 +352,9 @@ function buildFaults(){
  ${Object.keys(F.dio).map(d=>`<label class="f">${d}<select id="fo-${d}" class="${F.dio[d]!=='ok'?'bad':''}">${opt([['ok','OK'],['open','Abierto'],['short','En corto']],F.dio[d])}</select></label>`).join('')}</div></details>
  <details ${nCfg?'open':''}><summary>Configuración (diodos de región/FI)${cnt(nCfg)}</summary><div class="grid">
  <label class="f">S16 asignación<select id="fs16" class="${['US','EU'].includes(F.s16)?'':'bad'}">${opt([['US','FM 200k / AM 10k (EE.UU.)'],['EU','FM 50k / AM 9k (Europa)'],['none','Sin contacto'],['both','Ambos contactos']],F.s16)}</select></label>
- <label class="c"><input type="checkbox" id="c924" ${F.d924?'checked':''}>D924 (108/104)</label><label class="c"><input type="checkbox" id="c919" ${F.d919?'checked':''}>D919 (IF1)</label><label class="c"><input type="checkbox" id="c920" ${F.d920?'checked':''}>D920 (IF0)</label></div>
- <p class="note">Montado = marcado. D919/D920 dependen del rango del filtro cerámico; el estado inicial es un ejemplo.</p></details>
+ <label class="f">Rango CF101/CF102<select id="frank">${opt([['R','Rojo (sin D919/D920)'],['O','Naranja (D919+D920)'],['B','Azul (solo D920)']],F.rank)}</select></label>
+ <label class="c"><input type="checkbox" id="c924" ${F.d924?'checked':''}>D924 (108/104)</label><label class="c"><input type="checkbox" id="c919" ${F.d919?'checked':''}>D919 (IF1)</label><label class="c"><input type="checkbox" id="c920" ${F.d920?'checked':''}>D920 (IF0)</label><label class="c"><input type="checkbox" id="c925" ${F.d925?'checked':''}>D925 (B2)</label></div>
+ <p class="note">Marcado = montado. D919/D920 deben coincidir con el color del filtro cerámico (manual, pág. 6). D925 figura montado en el dibujo del manual, pero eso daría AM de 9 kHz en modo EE.UU.; aquí arranca sin montar para coincidir con el rótulo de S16 (ver diagnóstico).</p></details>
  <details ${nPw?'open':''}><summary>Alimentación del display y memoria${cnt(nPw)}</summary><div class="grid">
  <label class="c"><input type="checkbox" id="pneg" ${F.neg?'checked':''}>Falta −21,4 V</label><label class="c"><input type="checkbox" id="pfil" ${F.fil?'checked':''}>Filamento abierto</label><label class="c"><input type="checkbox" id="pvdd" ${F.vdd?'checked':''}>IC901 sin 5 V</label><label class="c"><input type="checkbox" id="pbak" ${F.backup?'checked':''}>Supercaps agotados</label></div></details>`;
  L.forEach(l=>{fdiv.querySelector('#fl-'+l).onchange=e=>{F.line[l]=e.target.value;changed();};fdiv.querySelector('#fp-'+l).onchange=e=>{F.pd[l]=e.target.checked;changed();};});
@@ -359,7 +364,8 @@ function buildFaults(){
  KEYS.forEach(k=>fdiv.querySelector('#fk-'+k.id).onchange=e=>{F.key[k.id]=e.target.value;changed();});
  Object.keys(F.dio).forEach(d=>fdiv.querySelector('#fo-'+d).onchange=e=>{F.dio[d]=e.target.value;changed();});
  fdiv.querySelector('#fs16').onchange=e=>{F.s16=e.target.value;changed();};
- [['c924','d924'],['c919','d919'],['c920','d920']].forEach(([i,k])=>fdiv.querySelector('#'+i).onchange=e=>{F[k]=e.target.checked;changed();});
+ fdiv.querySelector('#frank').onchange=e=>{F.rank=e.target.value;changed();};
+ [['c924','d924'],['c919','d919'],['c920','d920'],['c925','d925']].forEach(([i,k])=>fdiv.querySelector('#'+i).onchange=e=>{F[k]=e.target.checked;changed();});
  [['pneg','neg'],['pfil','fil'],['pvdd','vdd'],['pbak','backup']].forEach(([i,k])=>fdiv.querySelector('#'+i).onchange=e=>{F[k]=e.target.checked;changed();});
  renderScen();}
 const openState=()=>[...fdiv.querySelectorAll('details')].map(d=>d.open);

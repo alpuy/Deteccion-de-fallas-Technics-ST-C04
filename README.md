@@ -32,7 +32,7 @@ Cada línea de segmento también es un estrobo de la matriz de teclas. Si una l�
 | b | 20 | P29 | segmento b, MEMORY | CH1–CH4 (D911) |
 | c | 19 | P30 | segmento c, FM, MHz, punto decimal | CH5, CH6 (D910) |
 | d | 18 | P27 | segmento d | ninguna |
-| e | 17 | P31 | segmento e, AM, kHz | 108/104 (D924); AUTO y AM/FM (placa F) |
+| e | 17 | P31 | segmento e, AM, kHz | 108/104 (D924); AUTO y AM/FM (S3/S2 en placa F, vía D929/D928) |
 | f | 16 | P28 | segmento f | B2: paso de AM (D925) |
 | g | 15 | P32 | segmento g | B0/B1: región (S16, D916); IF0/IF1 (D920/D919) |
 
@@ -46,15 +46,24 @@ Los dígitos se reparten así:
 | D4 | Q908 | G5 | dígito completo |
 | D5 | Q909 | G6 | el "1" inicial |
 
+## Rango del filtro cerámico (D919/D920)
+
+| Color de CF101/CF102 | D919 (IF1) | D920 (IF0) | FI programada |
+|---|---|---|---|
+| Rojo | no | no | 10,700 MHz |
+| Naranja | sí | sí | 10,675 MHz |
+| Azul | no | sí | 10,725 MHz |
+
 ## Fuentes y supuestos
 
 - Reconstruido del manual de servicio Technics ST-C04 (Order No. SD81061918C1) y del datasheet NEC µPD1703C-011. Esos documentos no se incluyen en el repositorio.
 - En el dibujo original, la línea del segmento "a" aparece unida al común de Z902; es un error de dibujo y va a P33 / Z902-8.
 - El orden de pines de Z901 es aproximado.
+- D925 (B2) figura montado en el dibujo del manual. Según el datasheet, eso da AM de 522–1611 kHz con paso de 9 kHz en modo EE.UU., en contra del rótulo "AM 10 kHz" de S16. Hay que verificar en la placa si está montado.
 - Supuestos del simulador:
   - Con dos teclas apretadas a la vez, el IC ignora ambas.
   - AUTO y AM/FM se leen por la línea e, según el datasheet; la placa F no está rastreada.
-  - D925 figura como no montado, para que el paso de AM en EE.UU. sea de 10 kHz.
+  - D925 arranca sin montar, para que el paso de AM en EE.UU. sea de 10 kHz; se puede montar desde el panel de fallas.
   - Las emisoras son de ejemplo.
 
 ## Regenerar los esquemáticos
